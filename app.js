@@ -12,10 +12,53 @@ window.ptoData = [
   { id_num: "9999", lastname: "Doe", firstname: "John", fullname: "Doe, John", empID: "1155", region: "New York", start_pto: "45811" }
   ];
 
+
+/*
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
     const ptoFiles = document.getElementById('ptoFiles').files;
+
+  */
+
+document.getElementById('generateReportBtn').addEventListener('click', function() {
+    console.log("--- REPORT BUTTON CLICKED ---");
     
+    // 1. Verify data exists
+    console.log("Attendance Data:", window.attendanceData);
+    console.log("PTO Data:", window.ptoData);
+    
+    // 2. Hardcoded test - bypass date inputs
+    const testData = [
+        ...window.attendanceData.map(item => ({ 
+            ...item, 
+            date: item.date || item.start_pto, 
+            type: item.type || 'attendance' 
+        })),
+        ...window.ptoData.map(item => ({
+            empID: item.empID,
+            fullname: item.fullname,
+            date: item.start_pto,
+            type: 'pto'
+        }))
+    ];
+    
+    console.log("Combined Test Data:", testData);
+    
+    // 3. Force display
+    const tableBody = document.querySelector('#reportTable tbody');
+    tableBody.innerHTML = testData.map(item => `
+        <tr>
+            <td>${item.empID}</td>
+            <td>${item.fullname}</td>
+            <td>${item.date}</td>
+            <td>${item.type === 'attendance' ? 'Attendance' : 'PTO'}</td>
+        </tr>
+    `).join('');
+    
+    console.log("Table should be updated!");
+});
+
+
     // Reset data
     /* attendanceData = []; */
     /* ptoData = []; */
@@ -30,6 +73,9 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
         processFiles(ptoFiles, 'pto');
     }
 });
+
+
+  
 
 function processFiles(files, type) {
     Array.from(files).forEach(file => {
