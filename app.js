@@ -8,19 +8,28 @@ let ptoData = [];
 
 // File upload handler
 document.getElementById('uploadBtn').addEventListener('click', function() {
-    const attendanceFiles = document.getElementById('attendanceFiles').files;
-    const ptoFiles = document.getElementById('ptoFiles').files;
-    
-    attendanceData = [];
-    ptoData = [];
-    
-    if (attendanceFiles.length > 0) {
-        processFiles(attendanceFiles, 'attendance');
-    }
-    
-    if (ptoFiles.length > 0) {
-        processFiles(ptoFiles, 'pto');
-    }
+  console.log("--- Upload button clicked ---");
+  
+  const attendanceFiles = document.getElementById('attendanceFiles').files;
+  const ptoFiles = document.getElementById('ptoFiles').files;
+  
+  console.log("Attendance files:", attendanceFiles.length);
+  console.log("PTO files:", ptoFiles.length);
+  
+  attendanceData = [];
+  ptoData = [];
+  
+  if (attendanceFiles.length > 0) {
+    console.log("Processing attendance files...");
+    processFiles(attendanceFiles, 'attendance');
+  }
+  
+  if (ptoFiles.length > 0) {
+    console.log("Processing PTO files...");
+    processFiles(ptoFiles, 'pto');
+  }
+  
+  console.log("Upload complete");
 });
 
 // CSV parsing function
