@@ -98,3 +98,8 @@ function displayResults(data) {
 console.log("Script loaded!");
 console.log("Upload button exists:", !!document.getElementById('uploadBtn'));
 console.log("Report button exists:", !!document.getElementById('generateReportBtn'));
+
+// Simple click test - should show alert when ANY button is clicked
+document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => alert(`${btn.id} clicked!`));
+});
