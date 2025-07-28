@@ -1,3 +1,8 @@
+//adding this to see if it explains why Generate Report button is not working
+
+document.getElementById('generateReportBtn').addEventListener('click', function() {
+  console.log("Button clicked!"); // Check if this appears
+
 // Global variables to store parsed data
 let attendanceData = [];
 let ptoData = [];
