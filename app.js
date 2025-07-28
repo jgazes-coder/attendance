@@ -1,36 +1,24 @@
-console.log("=== DEBUG MODE ===");
+// Debug logger
+console.log("=== DEBUG INIT ===");
 
-// Debug: Log all clicks on the page
-document.addEventListener('click', (e) => {
-  console.log("Clicked:", e.target.id || e.target.tagName);
-});
-
-// Global variables
+// Global data stores
 window.attendanceData = [];
 window.ptoData = [];
 
-// Super-simple upload test
+// 1. Upload Button
 document.getElementById('uploadBtn').addEventListener('click', function() {
-  console.log("--- UPLOAD BUTTON CLICKED ---");
-  alert("Upload button works!"); // Simple verification
-  
-  const testData = [{empID: "999", fullname: "Test", date: "45810", type: "debug"}];
-  window.attendanceData = testData;
-  console.log("Test data loaded:", testData);
+    console.log("[DEBUG] Upload button clicked");
+    alert("Upload button works!"); // Simple verification
+    
+    // Manually load test data
+    window.attendanceData = [
+        { empID: "1154", fullname: "Hahn, Amy", date: "45810", type: "attendance" }
+    ];
+    console.log("Test data loaded:", window.attendanceData);
 });
 
-// Basic report generation
+// 2. Report Button
 document.getElementById('generateReportBtn').addEventListener('click', function() {
-  console.log("--- REPORT BUTTON CLICKED ---");
-  console.log("Current data:", {
-    attendance: window.attendanceData,
-    pto: window.ptoData
-  });
-  
-  if (window.attendanceData.length === 0 && window.ptoData.length === 0) {
-    alert("No data loaded! Click Upload first.");
-    return;
-  }
-  
-  alert(`Report would run with ${window.attendanceData.length + window.ptoData.length} records`);
+    console.log("[DEBUG] Report button clicked");
+    alert(`Report would show ${window.attendanceData.length} records`);
 });
