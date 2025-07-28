@@ -14,7 +14,7 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
     const ptoFiles = document.getElementById('ptoFiles').files;
     
     // Reset data
-    attendanceData = [];
+    /* attendanceData = []; */
     ptoData = [];
     
     // Process attendance files
