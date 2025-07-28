@@ -1,125 +1,86 @@
-/***********************
- * DEBUG MODE ENABLED
- * Complete working version with error handling
- ***********************/
+// Global data stores
+window.attendanceData = [];
+window.ptoData = [];
 
-console.log("=== DEBUG INIT ===");
+// File processing
+function processFiles(files, type) {
+  Array.from(files).forEach(file => {
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        const processed = results.data.map(item => ({
+          ...item,
+          type: type,
+          date: type === 'attendance' ? item.date_in_office : item.start_pto
+        }));
+        
+        if (type === 'attendance') {
+          window.attendanceData.push(...processed);
+        } else {
+          window.ptoData.push(...processed);
+        }
+        console.log(`Processed ${file.name}`, processed.slice(0, 2)); // Log first 2 rows
+      },
+      error: (error) => {
+        console.error(`Error parsing ${file.name}:`, error);
+        alert(`Error processing ${file.name}. See console.`);
+      }
+    });
+  });
+}
 
-// Global data stores with test data
-window.attendanceData = [
-  { 
-    empID: "1154", 
-    fullname: "Hahn, Amy", 
-    date: "45810", 
-    type: "attendance",
-    date_in_office: "45810" // Added for CSV compatibility
-  }
-];
-
-window.ptoData = [
-  { 
-    id_num: "9999", 
-    lastname: "Doe", 
-    firstname: "John", 
-    fullname: "Doe, John", 
-    empID: "1155", 
-    region: "New York", 
-    start_pto: "45811" 
-  }
-];
-
-// --------------------------------------------------
-// FILE UPLOAD HANDLER (SIMPLIFIED)
-// --------------------------------------------------
+// Upload handler
 document.getElementById('uploadBtn').addEventListener('click', function() {
   try {
-    console.log("--- UPLOAD BUTTON CLICKED ---");
+    window.attendanceData = [];
+    window.ptoData = [];
     
     const attendanceFiles = document.getElementById('attendanceFiles').files;
     const ptoFiles = document.getElementById('ptoFiles').files;
     
-    console.log(`Found ${attendanceFiles.length} attendance files`);
-    console.log(`Found ${ptoFiles.length} PTO files`);
+    if (attendanceFiles.length > 0) processFiles(attendanceFiles, 'attendance');
+    if (ptoFiles.length > 0) processFiles(ptoFiles, 'pto');
     
-    // For now, just log files - we'll process them later
-    Array.from(attendanceFiles).forEach(file => {
-      console.log("Attendance file:", file.name);
-    });
-    
-    Array.from(ptoFiles).forEach(file => {
-      console.log("PTO file:", file.name);
-    });
-    
-    alert("File selection working! Data processing will be added next.");
+    alert(`Processing ${attendanceFiles.length + ptoFiles.length} files...`);
     
   } catch (error) {
     console.error("Upload error:", error);
-    alert("Error during upload. Check console.");
+    alert("Upload failed. See console.");
   }
 });
 
-// --------------------------------------------------
-// REPORT GENERATION (FULLY WORKING VERSION)
-// --------------------------------------------------
+// Report generation
 document.getElementById('generateReportBtn').addEventListener('click', function() {
   try {
-    console.log("--- REPORT BUTTON CLICKED ---");
+    const startNum = document.getElementById('startDate').value?.replace(/-/g, '');
+    const endNum = document.getElementById('endDate').value?.replace(/-/g, '');
     
-    // 1. Verify data exists
-    console.log("Current Attendance Data:", JSON.stringify(window.attendanceData, null, 2));
-    console.log("Current PTO Data:", JSON.stringify(window.ptoData, null, 2));
+    const filteredData = [
+      ...window.attendanceData,
+      ...window.ptoData.map(item => ({ ...item, type: 'pto' }))
+    ].filter(item => {
+      const date = item.date.toString();
+      return (!startNum || date >= startNum) && 
+             (!endNum || date <= endNum);
+    });
     
-    // 2. Transform all data to common format
-    const allAttendance = window.attendanceData.map(item => ({
-      empID: item.empID,
-      fullname: item.fullname || `${item.firstname} ${item.lastname}`,
-      date: item.date || item.date_in_office,
-      type: 'attendance'
-    }));
+    document.querySelector('#reportTable tbody').innerHTML = filteredData
+      .sort((a, b) => a.date - b.date)
+      .map(item => `
+        <tr>
+          <td>${item.empID}</td>
+          <td>${item.fullname}</td>
+          <td>${item.date}</td>
+          <td>${item.type.toUpperCase()}</td>
+        </tr>
+      `).join('');
     
-    const allPTO = window.ptoData.map(item => ({
-      empID: item.empID,
-      fullname: item.fullname || `${item.firstname} ${item.lastname}`,
-      date: item.start_pto,
-      type: 'pto'
-    }));
-    
-    const combinedData = [...allAttendance, ...allPTO];
-    console.log("Combined Data:", JSON.stringify(combinedData, null, 2));
-    
-    // 3. Sort by date (ascending)
-    combinedData.sort((a, b) => parseInt(a.date) - parseInt(b.date));
-    
-    // 4. Generate table rows
-    const tableBody = document.querySelector('#reportTable tbody');
-    if (!tableBody) {
-      throw new Error("Missing table body - check your HTML for #reportTable tbody");
-    }
-    
-    tableBody.innerHTML = combinedData.map(item => `
-      <tr>
-        <td>${item.empID}</td>
-        <td>${item.fullname}</td>
-        <td>${item.date}</td>
-        <td>${item.type.toUpperCase()}</td>
-      </tr>
-    `).join('');
-    
-    console.log(`Displayed ${combinedData.length} records`);
-    alert(`Report generated with ${combinedData.length} records!`);
+    console.log("Report generated with", filteredData.length, "records");
     
   } catch (error) {
-    console.error("Report generation failed:", error);
-    alert("Error generating report. Check console for details.");
+    console.error("Report error:", error);
+    alert("Report generation failed. See console.");
   }
 });
 
-// --------------------------------------------------
-// INITIALIZATION CHECK
-// --------------------------------------------------
-console.log("Element checks:");
-console.log("Upload button:", document.getElementById('uploadBtn') ? "FOUND" : "MISSING");
-console.log("Report button:", document.getElementById('generateReportBtn') ? "FOUND" : "MISSING");
-console.log("Table body:", document.querySelector('#reportTable tbody') ? "FOUND" : "MISSING");
-
-console.log("=== DEBUG READY ===");
+console.log("App initialized successfully");
