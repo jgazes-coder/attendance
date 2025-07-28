@@ -145,6 +145,58 @@ function generateReport() {
 }
 
 // ==============================================
+// added code to download file
+// ==============================================
+
+/**
+ * Exports filtered data as CSV download
+ */
+function exportToCSV() {
+  try {
+    // Get current filtered data (same logic as generateReport)
+    const allRecords = [
+      ...window.attendanceData,
+      ...window.ptoData
+    ].sort((a, b) => parseInt(a.date) - parseInt(b.date));
+
+    if (allRecords.length === 0) {
+      alert("No data to export. Generate a report first.");
+      return;
+    }
+
+    // Convert to CSV format
+    const headers = ["Employee ID", "Full Name", "Date", "Type"];
+    const csvRows = [
+      headers.join(","),
+      ...allRecords.map(record => 
+        `"${record.empID}","${record.fullname || ''}","${record.date}","${record.type}"`
+      )
+    ];
+
+    // Create download
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `employee_report_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    console.log("Exported CSV with", allRecords.length, "records");
+    
+  } catch (error) {
+    console.error("Export failed:", error);
+    alert("Error generating CSV file. See console for details.");
+  }
+}
+
+
+// ==============================================
 // EVENT LISTENERS
 // ==============================================
 
@@ -175,6 +227,12 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
 });
 
 document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+// =============================================
+// added event listener for new download button
+// =============================================
+
+document.getElementById('exportBtn').addEventListener('click', exportToCSV);
 
 // ==============================================
 // INITIALIZATION
