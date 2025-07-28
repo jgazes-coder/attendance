@@ -1,3 +1,7 @@
+window.onerror = function(message, url, line) {
+  console.error("Global error:", message, "at line", line);
+};
+
 // Global variables
 let attendanceData = [];
 let ptoData = [];
