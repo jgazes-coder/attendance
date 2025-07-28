@@ -10,6 +10,9 @@ let ptoData = [];
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
     const ptoFiles = document.getElementById('ptoFiles').files;
+
+  console.log("Attendance count:", attendanceData.length);
+  console.log("PTO count:", ptoData.length);
     
     // Reset data
     attendanceData = [];
