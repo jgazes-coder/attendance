@@ -4,8 +4,11 @@ document.getElementById('generateReportBtn').addEventListener('click', function(
   console.log("Button clicked!"); // Check if this appears
 
 // Global variables to store parsed data
-let attendanceData = [];
-let ptoData = [];
+// let attendanceData = [];
+// let ptoData = [];
+
+window.attendanceData = [];
+window.ptoData = [];
 
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
