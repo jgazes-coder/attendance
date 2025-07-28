@@ -82,3 +82,6 @@ function displayResults(data) {
         tableBody.appendChild(row);
     });
 }
+console.log("Script loaded!");
+console.log("Upload button exists:", !!document.getElementById('uploadBtn'));
+console.log("Report button exists:", !!document.getElementById('generateReportBtn'));
