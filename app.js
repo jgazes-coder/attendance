@@ -1,105 +1,36 @@
-window.onerror = function(message, url, line) {
-  console.error("Global error:", message, "at line", line);
-};
+console.log("=== DEBUG MODE ===");
+
+// Debug: Log all clicks on the page
+document.addEventListener('click', (e) => {
+  console.log("Clicked:", e.target.id || e.target.tagName);
+});
 
 // Global variables
-let attendanceData = [];
-let ptoData = [];
+window.attendanceData = [];
+window.ptoData = [];
 
-// File upload handler
+// Super-simple upload test
 document.getElementById('uploadBtn').addEventListener('click', function() {
-  console.log("--- Upload button clicked ---");
+  console.log("--- UPLOAD BUTTON CLICKED ---");
+  alert("Upload button works!"); // Simple verification
   
-  const attendanceFiles = document.getElementById('attendanceFiles').files;
-  const ptoFiles = document.getElementById('ptoFiles').files;
-  
-  console.log("Attendance files:", attendanceFiles.length);
-  console.log("PTO files:", ptoFiles.length);
-  
-  attendanceData = [];
-  ptoData = [];
-  
-  if (attendanceFiles.length > 0) {
-    console.log("Processing attendance files...");
-    processFiles(attendanceFiles, 'attendance');
-  }
-  
-  if (ptoFiles.length > 0) {
-    console.log("Processing PTO files...");
-    processFiles(ptoFiles, 'pto');
-  }
-  
-  console.log("Upload complete");
+  const testData = [{empID: "999", fullname: "Test", date: "45810", type: "debug"}];
+  window.attendanceData = testData;
+  console.log("Test data loaded:", testData);
 });
 
-// CSV parsing function
-function processFiles(files, type) {
-    Array.from(files).forEach(file => {
-        Papa.parse(file, {
-            header: true,
-            complete: function(results) {
-                const processed = results.data.map(item => ({
-                    ...item,
-                    type: type,
-                    date: type === 'attendance' ? item.date_in_office : item.start_pto
-                }));
-                
-                if (type === 'attendance') {
-                    attendanceData.push(...processed);
-                } else {
-                    ptoData.push(...processed);
-                }
-            },
-            error: function(error) {
-                console.error("CSV error:", error);
-            }
-        });
-    });
-}
-
-// Report generation
+// Basic report generation
 document.getElementById('generateReportBtn').addEventListener('click', function() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    
-    if (!startDate || !endDate) {
-        alert('Please select both dates!');
-        return;
-    }
-    
-    // Convert YYYY-MM-DD to numeric (e.g., "2025-07-28" → 20250728)
-    const startNum = parseInt(startDate.replace(/-/g, ''));
-    const endNum = parseInt(endDate.replace(/-/g, ''));
-    
-    const filteredData = [...attendanceData, ...ptoData].filter(item => {
-        const date = parseInt(item.date);
-        return date >= startNum && date <= endNum;
-    });
-    
-    displayResults(filteredData);
-});
-
-// Display results in table
-function displayResults(data) {
-    const tableBody = document.querySelector('#reportTable tbody');
-    tableBody.innerHTML = '';
-    
-    data.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.empID}</td>
-            <td>${item.fullname}</td>
-            <td>${item.date}</td>
-            <td>${item.type === 'attendance' ? 'Attendance' : 'PTO'}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-console.log("Script loaded!");
-console.log("Upload button exists:", !!document.getElementById('uploadBtn'));
-console.log("Report button exists:", !!document.getElementById('generateReportBtn'));
-
-// Simple click test - should show alert when ANY button is clicked
-document.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', () => alert(`${btn.id} clicked!`));
+  console.log("--- REPORT BUTTON CLICKED ---");
+  console.log("Current data:", {
+    attendance: window.attendanceData,
+    pto: window.ptoData
+  });
+  
+  if (window.attendanceData.length === 0 && window.ptoData.length === 0) {
+    alert("No data loaded! Click Upload first.");
+    return;
+  }
+  
+  alert(`Report would run with ${window.attendanceData.length + window.ptoData.length} records`);
 });
