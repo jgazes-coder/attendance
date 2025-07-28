@@ -1,122 +1,84 @@
-//adding this to see if it explains why Generate Report button is not working
+// Global variables
+let attendanceData = [];
+let ptoData = [];
 
-document.getElementById('generateReportBtn').addEventListener('click', function() {
-  console.log("Button clicked!"); // Check if this appears
-
-// Global variables to store parsed data
-// let attendanceData = [];
-// let ptoData = [];
-
-window.attendanceData = [];
-window.ptoData = [];
-
+// File upload handler
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
     const ptoFiles = document.getElementById('ptoFiles').files;
-
-  console.log("Attendance count:", attendanceData.length);
-  console.log("PTO count:", ptoData.length);
     
-    // Reset data
     attendanceData = [];
     ptoData = [];
     
-    // Process attendance files
     if (attendanceFiles.length > 0) {
         processFiles(attendanceFiles, 'attendance');
     }
     
-    // Process PTO files
     if (ptoFiles.length > 0) {
         processFiles(ptoFiles, 'pto');
     }
 });
 
+// CSV parsing function
 function processFiles(files, type) {
     Array.from(files).forEach(file => {
         Papa.parse(file, {
             header: true,
             complete: function(results) {
+                const processed = results.data.map(item => ({
+                    ...item,
+                    type: type,
+                    date: type === 'attendance' ? item.date_in_office : item.start_pto
+                }));
+                
                 if (type === 'attendance') {
-                    attendanceData = attendanceData.concat(results.data.map(item => {
-                        return {
-                            ...item,
-                            type: 'attendance',
-                            date: item.date_in_office
-                        };
-                    }));
-                } else if (type === 'pto') {
-                    ptoData = ptoData.concat(results.data.map(item => {
-                        return {
-                            ...item,
-                            type: 'pto',
-                            date: item.start_pto
-                        };
-                    }));
+                    attendanceData.push(...processed);
+                } else {
+                    ptoData.push(...processed);
                 }
-                alert(`${file.name} processed successfully!`);
             },
             error: function(error) {
-                alert(`Error processing ${file.name}: ${error.message}`);
+                console.error("CSV error:", error);
             }
         });
     });
 }
 
+// Report generation
 document.getElementById('generateReportBtn').addEventListener('click', function() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     
     if (!startDate || !endDate) {
-        alert('Please select both start and end dates');
+        alert('Please select both dates!');
         return;
     }
     
-    // Combine data
-    const combinedData = [...attendanceData, ...ptoData];
+    // Convert YYYY-MM-DD to numeric (e.g., "2025-07-28" → 20250728)
+    const startNum = parseInt(startDate.replace(/-/g, ''));
+    const endNum = parseInt(endDate.replace(/-/g, ''));
     
-    // Filter by date range
-    const filteredData = combinedData.filter(item => {
+    const filteredData = [...attendanceData, ...ptoData].filter(item => {
         const date = parseInt(item.date);
-        return date >= parseInt(startDate) && date <= parseInt(endDate);
+        return date >= startNum && date <= endNum;
     });
     
-    // Sort by empID and date
-    filteredData.sort((a, b) => {
-        if (a.empID === b.empID) {
-            return a.date - b.date;
-        }
-        return a.empID - b.empID;
-    });
-    
-    // Display results
     displayResults(filteredData);
 });
 
+// Display results in table
 function displayResults(data) {
     const tableBody = document.querySelector('#reportTable tbody');
     tableBody.innerHTML = '';
     
     data.forEach(item => {
         const row = document.createElement('tr');
-        
-        const empIDCell = document.createElement('td');
-        empIDCell.textContent = item.empID;
-        
-        const nameCell = document.createElement('td');
-        nameCell.textContent = item.fullname;
-        
-        const dateCell = document.createElement('td');
-        dateCell.textContent = item.date;
-        
-        const typeCell = document.createElement('td');
-        typeCell.textContent = item.type === 'attendance' ? 'Attendance' : 'PTO';
-        
-        row.appendChild(empIDCell);
-        row.appendChild(nameCell);
-        row.appendChild(dateCell);
-        row.appendChild(typeCell);
-        
+        row.innerHTML = `
+            <td>${item.empID}</td>
+            <td>${item.fullname}</td>
+            <td>${item.date}</td>
+            <td>${item.type === 'attendance' ? 'Attendance' : 'PTO'}</td>
+        `;
         tableBody.appendChild(row);
     });
 }
