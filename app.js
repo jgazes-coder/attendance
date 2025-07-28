@@ -8,6 +8,9 @@ window.ptoData = [];
 window.attendanceData = [
   { empID: "1154", fullname: "Hahn, Amy", date: "45810", type: "attendance" }
 ];
+window.ptoData = [
+  { id_num: "9999", lastname: "Doe", firstname: "John", fullname: "Doe, John", empID: "1155", region: "New York", start_pto: "45811" }
+  ];
 
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
@@ -15,7 +18,7 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
     
     // Reset data
     /* attendanceData = []; */
-    ptoData = [];
+    /* ptoData = []; */
     
     // Process attendance files
     if (attendanceFiles.length > 0) {
