@@ -1,27 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Attendance/PTO Tool</title>
-    <!-- Load dependencies -->
+    <title>Employee Attendance/PTO Report</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        /* Basic unstyled layout for testing */
-        body { font-family: Arial; padding: 20px; }
-        button { padding: 10px; margin: 5px; }
-    </style>
+    <script src="app.js" defer></script>
 </head>
 <body>
-    <h1>Debug Mode</h1>
-    
-    <!-- Simplified UI -->
-    <input type="file" id="attendanceFiles" multiple accept=".csv">
-    <button id="uploadBtn">Upload Files (Test)</button>
-    
-    <div style="margin-top: 20px;">
-        <button id="generateReportBtn">Test Report Button</button>
-    </div>
+    <div class="container mt-4">
+        <h1>Employee Attendance/PTO Report</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">Upload CSV Files</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="attendanceFiles" class="form-label">Attendance Files</label>
+                    <input class="form-control" type="file" id="attendanceFiles" multiple accept=".csv">
+                </div>
+                <div class="mb-3">
+                    <label for="ptoFiles" class="form-label">PTO Files</label>
+                    <input class="form-control" type="file" id="ptoFiles" multiple accept=".csv">
+                </div>
+                <button id="uploadBtn" class="btn btn-primary">Upload Files</button>
+            </div>
+        </div>
 
-    <!-- Load scripts at the end -->
-    <script src="app.js"></script>
+        <div class="card mb-4">
+            <div class="card-header">Generate Report</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" id="startDate" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                </div>
+                <button id="generateReportBtn" class="btn btn-success">Generate Report</button>
+            </div>
+        </div>
+
+        <div id="reportResults" class="mt-4">
+            <table id="reportTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>empID</th>
+                        <th>fullname</th>
+                        <th>date</th>
+                        <th>Attendance or PTO</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
