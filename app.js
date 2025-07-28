@@ -4,6 +4,10 @@ console.log("=== DEBUG INIT ===");
 // Global data stores
 window.attendanceData = [];
 window.ptoData = [];
+// In app.js
+window.attendanceData = [
+  { empID: "1154", fullname: "Hahn, Amy", date: "45810", type: "attendance" }
+];
 
 document.getElementById('uploadBtn').addEventListener('click', function() {
     const attendanceFiles = document.getElementById('attendanceFiles').files;
