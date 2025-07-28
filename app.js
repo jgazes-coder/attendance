@@ -5,20 +5,110 @@ console.log("=== DEBUG INIT ===");
 window.attendanceData = [];
 window.ptoData = [];
 
-// 1. Upload Button
 document.getElementById('uploadBtn').addEventListener('click', function() {
-    console.log("[DEBUG] Upload button clicked");
-    alert("Upload button works!"); // Simple verification
+    const attendanceFiles = document.getElementById('attendanceFiles').files;
+    const ptoFiles = document.getElementById('ptoFiles').files;
     
-    // Manually load test data
-    window.attendanceData = [
-        { empID: "1154", fullname: "Hahn, Amy", date: "45810", type: "attendance" }
-    ];
-    console.log("Test data loaded:", window.attendanceData);
+    // Reset data
+    attendanceData = [];
+    ptoData = [];
+    
+    // Process attendance files
+    if (attendanceFiles.length > 0) {
+        processFiles(attendanceFiles, 'attendance');
+    }
+    
+    // Process PTO files
+    if (ptoFiles.length > 0) {
+        processFiles(ptoFiles, 'pto');
+    }
 });
 
-// 2. Report Button
+function processFiles(files, type) {
+    Array.from(files).forEach(file => {
+        Papa.parse(file, {
+            header: true,
+            complete: function(results) {
+                if (type === 'attendance') {
+                    attendanceData = attendanceData.concat(results.data.map(item => {
+                        return {
+                            ...item,
+                            type: 'attendance',
+                            date: item.date_in_office
+                        };
+                    }));
+                } else if (type === 'pto') {
+                    ptoData = ptoData.concat(results.data.map(item => {
+                        return {
+                            ...item,
+                            type: 'pto',
+                            date: item.start_pto
+                        };
+                    }));
+                }
+                alert(`${file.name} processed successfully!`);
+            },
+            error: function(error) {
+                alert(`Error processing ${file.name}: ${error.message}`);
+            }
+        });
+    });
+}
+
 document.getElementById('generateReportBtn').addEventListener('click', function() {
-    console.log("[DEBUG] Report button clicked");
-    alert(`Report would show ${window.attendanceData.length} records`);
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate || !endDate) {
+        alert('Please select both start and end dates');
+        return;
+    }
+    
+    // Combine data
+    const combinedData = [...attendanceData, ...ptoData];
+    
+    // Filter by date range
+    const filteredData = combinedData.filter(item => {
+        const date = parseInt(item.date);
+        return date >= parseInt(startDate) && date <= parseInt(endDate);
+    });
+    
+    // Sort by empID and date
+    filteredData.sort((a, b) => {
+        if (a.empID === b.empID) {
+            return a.date - b.date;
+        }
+        return a.empID - b.empID;
+    });
+    
+    // Display results
+    displayResults(filteredData);
 });
+
+function displayResults(data) {
+    const tableBody = document.querySelector('#reportTable tbody');
+    tableBody.innerHTML = '';
+    
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        
+        const empIDCell = document.createElement('td');
+        empIDCell.textContent = item.empID;
+        
+        const nameCell = document.createElement('td');
+        nameCell.textContent = item.fullname;
+        
+        const dateCell = document.createElement('td');
+        dateCell.textContent = item.date;
+        
+        const typeCell = document.createElement('td');
+        typeCell.textContent = item.type === 'attendance' ? 'Attendance' : 'PTO';
+        
+        row.appendChild(empIDCell);
+        row.appendChild(nameCell);
+        row.appendChild(dateCell);
+        row.appendChild(typeCell);
+        
+        tableBody.appendChild(row);
+    });
+}
